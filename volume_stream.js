@@ -3,6 +3,9 @@
 
 const needle = require('needle');
 
+const LanguageDetect = require('languagedetect');
+const lngDetector = new LanguageDetect();
+
 // The code below sets the bearer token from your environment variables
 // To set environment variables on macOS or Linux, run the export command below from the terminal:
 // export BEARER_TOKEN='YOUR-TOKEN'
@@ -24,7 +27,20 @@ function streamConnect(retryAttempt) {
   stream.on('data', data => {
     try {
       const json = JSON.parse(data);
-      console.log(json);
+
+      // console.log(lngDetector.detect(json.data.text, 5));
+
+      // remove mentions from tweet
+      var clean = json.data.text.replace(/ *\@[A-Za-z0-9_]+ */g, '')
+      clean = clean.replace(/ *\#[A-Za-z0-9_]+ */g, '')
+
+      // check language of tweet
+      const eng = lngDetector.detect(clean, 1)
+
+      // if language is english, print tweet
+      if (eng[0].includes('english')) {
+        console.log(json)
+      }
       // A successful connection resets retry count.
       retryAttempt = 0;
     } catch (e) {
