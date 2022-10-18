@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Image } from './models/image.interface';
 import { PicproService } from './services/picpro.service';
 
 @Component({
@@ -8,10 +9,8 @@ import { PicproService } from './services/picpro.service';
 })
 export class AppComponent {
   title = 'frontend';
-
-  fileName: string = '';
-  inputImageUrl: any;
-  outputImageUrl: any;
+  inputImage: Image | undefined;
+  outputImage: Image | undefined;
   fileReader: FileReader = new FileReader();
 
   constructor(public picproService: PicproService) { }
@@ -20,18 +19,20 @@ export class AppComponent {
     const file: File = event.target.files[0];
 
     if (file) {
-      this.fileName = file.name;
       this.fileReader.readAsDataURL(file);
       this.fileReader.onload = () => { 
-        this.inputImageUrl = this.fileReader.result; 
-        console.log(this.inputImageUrl);
-      }
-      console.log(file);
+        this.inputImage = {
+          name: file.name,
+          content: file,
+          url: this.fileReader.result
+        };
+        console.log(this.inputImage);
+      };
     }
   }
 
-  triggerFileUpload(file: File) {
-    this.picproService.uploadImage(file).subscribe(res => {
+  triggerImageUpload(image: Image) {
+    this.picproService.uploadImage(image.content).subscribe(res => {
       console.log(res);
     });
   }
