@@ -1,0 +1,16 @@
+.file-input {
+    display: none;
+}
+
+.content-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    padding: 10px;
+    margin: 20px;
+}
+
+.below {
+    clear: both;
+}
