@@ -9,15 +9,15 @@ const brightness = 2;
 const saturation = 0.5;
 const hue = 180;
 
-(async function () {
+(async function (input = image) {
     try {
         const B = true;
         let info;
         let edit = "image/edit"
 
         // resize image
-        if (B){
-            info = await sharp(image).resize(w, h);
+        if (B) {
+            info = await sharp(input).resize(w, h);
         }
 
         // greyscale
@@ -41,7 +41,7 @@ const hue = 180;
                 saturation: saturation,
             });
         }
-        // saturation
+        // hue
         if (B) {
             info = await info.modulate({
                 hue: hue,
@@ -49,7 +49,7 @@ const hue = 180;
         }
 
         // blur
-        if (B) {
+        if (!B) {
             info = await info.blur(20);
         }
 
