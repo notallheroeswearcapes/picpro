@@ -10,7 +10,8 @@ export class AppComponent {
   title = 'frontend';
 
   fileName: string = '';
-  imageUrl: any;
+  inputImageUrl: any;
+  outputImageUrl: any;
   fileReader: FileReader = new FileReader();
 
   constructor(public picproService: PicproService) { }
@@ -22,13 +23,16 @@ export class AppComponent {
       this.fileName = file.name;
       this.fileReader.readAsDataURL(file);
       this.fileReader.onload = () => { 
-        this.imageUrl = this.fileReader.result; 
-        console.log(this.imageUrl);
+        this.inputImageUrl = this.fileReader.result; 
+        console.log(this.inputImageUrl);
       }
       console.log(file);
-      this.picproService.uploadImage(file).subscribe(res => {
-        console.log(res);
-      });
     }
+  }
+
+  triggerFileUpload(file: File) {
+    this.picproService.uploadImage(file).subscribe(res => {
+      console.log(res);
+    });
   }
 }

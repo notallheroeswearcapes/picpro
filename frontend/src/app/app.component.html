@@ -14,7 +14,7 @@
 
   <mat-progress-bar mode="indeterminate" *ngIf="picproService.isLoading$ | async"></mat-progress-bar>
 
-  <div class="content-container mat-elevation-z4">
+  <div class="content-container mat-elevation-z1">
 
     <div>
       <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
@@ -28,9 +28,48 @@
     </div>
   </div>
 
-  <div class="content-container mat-elevation-z4" *ngIf="imageUrl">
-    <div>
-      <img [src]="imageUrl">
+  <div class="images-container-parent" *ngIf="inputImageUrl">
+    <div class="image-display left">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Input image</mat-card-title>
+          <mat-card-subtitle>{{fileName}}</mat-card-subtitle>
+        </mat-card-header>
+        <img mat-card-image [src]="inputImageUrl">
+        <mat-card-content>
+          <p>
+            The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
+            A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
+            bred for hunting.
+          </p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button>Upload</button>
+          <button mat-button>Transform</button>
+          <button mat-button>Reset</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+    <div class="image-display right">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Output image</mat-card-title>
+          <mat-card-subtitle>{{fileName}}</mat-card-subtitle>
+        </mat-card-header>
+        <img mat-card-image [src]="outputImageUrl">
+        <mat-card-content>
+          <p>
+            The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
+            A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
+            bred for hunting.
+          </p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button>Upload</button>
+          <button mat-button>Transform</button>
+          <button mat-button>Reset</button>
+        </mat-card-actions>
+      </mat-card>
     </div>
   </div>
 
