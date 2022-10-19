@@ -14,19 +14,30 @@
 
   <mat-progress-bar mode="indeterminate" *ngIf="picproService.isLoading$ | async"></mat-progress-bar>
 
-  <div class="content-container mat-elevation-z1">
+  <div class="content-container space-x-10 mat-elevation-z1">
 
-    <div>
-      <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
+    <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
 
-      <div class="file-upload">
-        <button mat-mini-fab color="primary" (click)="fileUpload.click()">
-          <mat-icon>attach_file</mat-icon>
+    <div class="align-middle">
+      <button mat-mini-fab color="primary" (click)="fileUpload.click()">
+        <mat-icon>attach_file</mat-icon>
+      </button>
+    </div>
+
+    <div class="align-middle spacing-small">
+      <mat-form-field appearance="fill">
+        <mat-label>Image name</mat-label>
+        <input matInput autofocus type="text" [disabled]="!inputImage" [(ngModel)]="inputImageName"
+          (keyup.enter)="triggerImageUpload(inputImage!)">
+        <button *ngIf="inputImage" matSuffix mat-icon-button aria-label="Clear" (click)="inputImageName=''">
+          <mat-icon>close</mat-icon>
         </button>
-        <span class="file-input-text">{{inputImage?.name || "No file chosen yet."}}</span>
-        <button mat-raised-button id="searchBtn" color="primary" class="align-middle upload-btn"
-          (click)="triggerImageUpload(inputImage!)" [disabled]="!inputImage">Upload</button>
-      </div>
+      </mat-form-field>
+    </div>
+
+    <div class="align-middle spacing-medium">
+      <button mat-raised-button id="searchBtn" color="primary" (click)="triggerImageUpload(inputImage!)"
+        [disabled]="!inputImage || uploaded || !inputImageName">Upload</button>
     </div>
   </div>
 
@@ -34,16 +45,27 @@
     <div class="image-display left">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Input image</mat-card-title>
+          <mat-card-title>
+            {{ uploaded ? 'Input Image' : 'Input Image Preview' }}
+            <mat-icon class="inline-flex align-middle">
+              {{ uploaded ? 'check' : 'pending' }}
+            </mat-icon>
+          </mat-card-title>
           <mat-card-subtitle>{{inputImage.name}}</mat-card-subtitle>
         </mat-card-header>
         <img mat-card-image [src]="inputImage.url">
         <mat-card-content>
-          <p>
-            The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-            A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
-            bred for hunting.
-          </p>
+          <div *ngIf="inputImage.metadata as data">
+            <mat-card-title>Metadata</mat-card-title>
+            <pre>
+  Name: {{ inputImage.name }}
+  Format: {{ data.format | uppercase }}
+  Size: {{ data.size | bytes:false }}
+  Dimension: {{ data.width }} x {{ data.height }} px
+  Density {{ data.density }} dpi
+  Channels: {{ data.channels }}
+            </pre>
+          </div>
         </mat-card-content>
         <mat-card-actions>
           <button mat-raised-button>Transform</button>
@@ -59,15 +81,21 @@
         </mat-card-header>
         <img mat-card-image [src]="outputImage.url">
         <mat-card-content>
-          <p>
-            The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-            A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
-            bred for hunting.
-          </p>
+          <div *ngIf="outputImage.metadata as data">
+            <mat-card-title>Metadata</mat-card-title>
+            <pre>
+  Name: {{ outputImage.name }}
+  Format: {{ data.format | uppercase }}
+  Size: {{ data.size | bytes:false }}
+  Dimension: {{ data.width }} x {{ data.height }} px
+  Density {{ data.density }} dpi
+  Channels: {{ data.channels }}
+            </pre>
+          </div>
         </mat-card-content>
         <mat-card-actions>
           <button mat-button>Use as input</button>
-          <button mat-button>Reset</button>
+          <button mat-button (click)="onInputImageReset()">Reset</button>
         </mat-card-actions>
       </mat-card>
     </div>

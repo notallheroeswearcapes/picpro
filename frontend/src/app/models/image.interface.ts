@@ -1,5 +1,10 @@
+import { Metadata } from "./metadata.interface";
+
 export interface Image {
     name: string,
-    content: File,
-    url: string | ArrayBuffer | null
+    type: string,
+    size: number,
+    lastModified: number,
+    url: string | ArrayBuffer | null,
+    metadata?: Metadata
 }

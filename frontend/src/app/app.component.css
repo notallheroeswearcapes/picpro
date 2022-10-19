@@ -33,6 +33,14 @@
     margin-left: 10px;
 }
 
-.upload-btn {
-    margin-left: 20px;
+.spacing-small {
+    margin-left: 10px;
+}
+
+.spacing-medium {
+    margin-left: 30px;
+}
+
+::ng-deep .mat-form-field-wrapper {
+    margin-bottom: -1.25em;
 }
