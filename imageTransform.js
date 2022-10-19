@@ -2,69 +2,69 @@
 const sharp = require("sharp");
 const fs = require("fs");
 
-const image = "image/original.png";
-const w = 400;
-const h = 200;
-const brightness = 2;
-const saturation = 0.5;
-const hue = 180;
-
-(async function (input = image) {
+(async function () {
     try {
-        const B = true;
-        let info;
         let edit = "image/edit"
 
-        // resize image
-        if (B) {
-            info = await sharp(input).resize(w, h);
+        var dummy = {
+                image: "image/original.png",
+                width: 400,
+                height: 200,
+                greyscale: false,
+                blackwhite: false,
+                brightness: true,
+                bri_set: 2,
+                saturation: false,
+                sat_set: 0.2,
+                hue: false,
+                hue_set: 180,
+                blur: false,
+                file: "jpeg"
         }
 
+        // resize image
+        let info = await sharp(dummy.image).resize(dummy.width, dummy.height);
+
         // greyscale
-        if (!B) {
+        if (dummy.greyscale) {
             info = await info.greyscale();
         }
         // black and white
-        if (!B) {
+        if (dummy.blackwhite) {
             info = await info.threshold(100);
         }
 
         // brightness
-        if (!B) {
+        if (dummy.brightness) {
             info = await info.modulate({
-                brightness: brightness,
+                brightness: dummy.bri_set,
             });
         }
         // saturation
-        if (!B) {
+        if (dummy.saturation) {
             info = await info.modulate({
-                saturation: saturation,
+                saturation: dummy.sat_set,
             });
         }
         // hue
-        if (B) {
+        if (dummy.hue) {
             info = await info.modulate({
-                hue: hue,
+                hue: dummy.hue_set,
             });
         }
 
         // blur
-        if (!B) {
-            info = await info.blur(20);
+        if (dummy.blur) {
+            info = await info.blur(15);
         }
 
         // transcode png
-        if (!B) {
+        if (dummy.file == "png") {
             edit = edit + ".png"
             info = await info.png().toFile(edit);
         }
-        // transcode webp
-        if (!B) {
-            edit = edit + ".webp"
-            info = await info.webp().toFile(edit);
-        }
         // transcode jpeg
-        if (B) {
+        if (dummy.file == "jpeg") {
             edit = edit + ".jpeg"
             info = await info.jpeg().toFile(edit);
         }
