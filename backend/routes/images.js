@@ -2,32 +2,41 @@ const axios = require('axios');
 const express = require('express');
 const sharp = require("sharp");
 require('dotenv').config();
-
 const AWS = require('aws-sdk');
-
-// Cloud Services Set0up
-// Create unique bucket name
-const bucketName = 'xxxxxxxxxxxx-change-later';
-const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
-
-// s3.createBucket({ Bucket: bucketName })
-//     .promise()
-//     .then(() => console.log(`Created bucket: ${bucketName}`))
-//     .catch((err) => {
-//         if (err.statusCode !== 409) {
-//             console.log(`Error creating bucket: ${err}`);
-//         }
-//     })
 
 const router = express.Router();
 
+// Cloud Services Setup
+// Create unique bucket name
+AWS.config.update({
+    region: process.env.REGION
+});
+const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
+const s3BucketName = process.env.S3_BUCKET_NAME;
+
 router.post('/upload', (req, res) => {
     console.log("⚡️ Received request to /images/upload");
-    let imgBuffer = getBufferFromBase64(req.body.url);
+    var imgBuffer = getBufferFromBase64(req.body.url);
+    var fileName = req.body.name;
     sharp(imgBuffer)
         .metadata()
         .then(metadataResult => {
             console.log(metadataResult);
+            // use multipart upload for potentially large files
+            var upload = new AWS.S3.ManagedUpload({
+                params: {
+                    Bucket: s3BucketName,
+                    Key: fileName,
+                    Body: req.body.url
+                }
+            });
+            upload.promise()
+                .then(res => {
+                    console.log(res);
+                })
+                .catch(error => {
+                    console.error(`❌ Error during image upload to S3: ${error}`);
+                });
             res.send(metadataResult);
         })
         .catch(error => {
