@@ -16,13 +16,13 @@ const s3BucketName = process.env.S3_BUCKET_NAME;
 
 router.post('/upload', (req, res) => {
     console.log("⚡️ Received request to /images/upload");
-    var imgBuffer = getBufferFromBase64(req.body.url);
-    var fileName = req.body.name;
+    const imgBuffer = getBufferFromBase64(req.body.url);
+    const fileName = req.body.name;
     sharp(imgBuffer)
         .metadata()
         .then(metadataResult => {
-            console.log(metadataResult);
             // use multipart upload for potentially large files
+            console.log(req.body.url.slice(0, 100));
             var upload = new AWS.S3.ManagedUpload({
                 params: {
                     Bucket: s3BucketName,
@@ -31,16 +31,46 @@ router.post('/upload', (req, res) => {
                 }
             });
             upload.promise()
-                .then(res => {
-                    console.log(res);
+                .then(() => {
+                    console.log(`✅ Uploaded image \'${fileName}\' to \'${s3BucketName}\'`);
+                    res.send(metadataResult);
                 })
                 .catch(error => {
                     console.error(`❌ Error during image upload to S3: ${error}`);
                 });
-            res.send(metadataResult);
         })
         .catch(error => {
             console.error(`❌ Error during image analysis for metadata: ${error}`);
+        });
+});
+
+router.post('/fetch', (req, res) => {
+    console.log("⚡️ Received request to /images/fetch");
+    const fileName = req.body.name;
+    const params = {
+        Bucket: s3BucketName,
+        Key: fileName
+    }
+    s3.getObject(params).promise()
+        .then(data => {
+            // conversion does not quite work yet
+            const url = getBase64FromOctetStream(data.Body);
+            console.log(url.slice(0, 100));
+            const imgBuffer = Buffer.from(url, 'base64');
+            sharp(imgBuffer).metadata()
+                .then(metadataResult => {
+                    console.log(`✅ Successfully fetched image \'${fileName}\' from \'${s3BucketName}\'`);
+                    res.send({
+                        url: url,
+                        metadata: metadataResult
+                    });
+                })
+                .catch(error => {
+                    console.error(`❌ Error during image analysis for metadata: ${error}`);
+                });
+        })
+        .catch(error => {
+            console.error(`❌ Error when fetching image \'${fileName}\' from S3: ${error}`);
         });
 });
 
@@ -80,13 +110,30 @@ router.post('/transform', (req, res) => {
     //     .catch((err) => res.json(err));
 });
 
-router.get('/', (req, res) => {
-    // retrieves all images from S3
+router.get('/', (_, res) => {
     console.log("⚡️ Received request to /images");
+
+    const params = { Bucket: s3BucketName };
+    const fileNames = [];
+    s3.listObjectsV2(params).promise()
+        .then(listRes => {
+            for (var i = 0; i < listRes.Contents.length; i++) {
+                fileNames.push(listRes.Contents[i].Key);
+            }
+            console.log(`ℹ Retrieved ${listRes.KeyCount} images from S3`);
+            res.send(fileNames);
+        })
+        .catch(error => {
+            console.error(`❌ Error during image listing from S3: ${error}`);
+        });
 });
 
 function getBufferFromBase64(url) {
     return Buffer.from(url.split(',')[1], 'base64');
+}
+
+function getBase64FromOctetStream(stream) {
+    return Buffer.from(stream).toString('base64');
 }
 
 function transform(image, presets) {

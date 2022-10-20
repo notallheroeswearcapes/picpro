@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -40,6 +41,7 @@ import { LoadingInterceptor } from './interceptors/loading.interceptor';
     MatTableModule,
     MatCardModule,
     MatChipsModule,
+    MatSelectModule,
     MatProgressBarModule
   ],
   providers: [

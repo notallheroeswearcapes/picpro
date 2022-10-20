@@ -16,9 +16,28 @@
 
   <div class="content-container space-x-10 mat-elevation-z1">
 
+    <div class="align-middle">
+      <mat-form-field appearance="fill">
+        <mat-label>Select a stored image</mat-label>
+        <mat-select [(value)]="chosenImageName">
+          <mat-option>None</mat-option>
+          <mat-option *ngFor="let image of images" [value]="image">
+            {{ image }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="align-middle spacing-small">
+      <button mat-raised-button id="chooseImageBtn" color="primary" (click)="triggerImageRetrieval()"
+        [disabled]="!chosenImageName">Choose</button>
+    </div>
+
+    <div class="align-middle spacing-large">OR</div>
+
     <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
 
-    <div class="align-middle">
+    <div class="align-middle spacing-large">
       <button mat-mini-fab color="primary" (click)="fileUpload.click()">
         <mat-icon>attach_file</mat-icon>
       </button>
@@ -28,15 +47,15 @@
       <mat-form-field appearance="fill">
         <mat-label>Image name</mat-label>
         <input matInput autofocus type="text" [disabled]="!inputImage" [(ngModel)]="inputImageName"
-          (keyup.enter)="triggerImageUpload(inputImage!)">
+          (keyup.enter)="triggerInputImageUpload()">
         <button *ngIf="inputImage" matSuffix mat-icon-button aria-label="Clear" (click)="inputImageName=''">
           <mat-icon>close</mat-icon>
         </button>
       </mat-form-field>
     </div>
 
-    <div class="align-middle spacing-medium">
-      <button mat-raised-button id="searchBtn" color="primary" (click)="triggerImageUpload(inputImage!)"
+    <div class="align-middle spacing-small">
+      <button mat-raised-button id="uploadBtn" color="primary" (click)="triggerInputImageUpload()"
         [disabled]="!inputImage || uploaded || !inputImageName">Upload</button>
     </div>
   </div>
