@@ -5,6 +5,7 @@ require('dotenv').config();
 const AWS = require('aws-sdk');
 const multer = require('multer');
 const upload = multer({storage: multer.memoryStorage()}).single('file');
+const fs = require('fs');
 
 const router = express.Router();
 
@@ -74,39 +75,63 @@ router.post('/fetch', (req, res) => {
 });
 
 // example of json response
-// {
-//     presets: {
-//         image: "insert s3 url,
-//         width: 400,
-//         height: 200,
-//         greyscale: false,
-//         blackwhite: false,
-//         brightness: true,
-//         bri_set: 2,
-//         saturation: false,
-//         sat_set: 0.2,
-//         hue: false,
-//         hue_set: 180,
-//         blur: false,
-//         file: "jpeg"
-//     }
-// }
+dummy = {
+    presets: {
+        width: 400,
+        height: 200,
+        greyscale: false,
+        blackwhite: false,
+        brightness: false,
+        bri_set: 2,
+        saturation: false,
+        sat_set: 0.2,
+        hue: false,
+        hue_set: 180,
+        blur: true,
+        file: "jpeg"
+    }
+}
 
 router.post('/transform', (req, res) => {
     // main endpoint for image transformation, use sharp here
     console.log("⚡️ Received request to /images/transform");
+    console.log(req.query.filename);
+
+    const params = { Bucket: s3BucketName, Key: req.query.filename};
+    s3.getObject(params)
+        .promise()
+        .then((result) => {
+            // change this later
+            console.log(result);
+            // console.log(getBase64FromOctetStream(result.Body));
+
+            let edit = transform("../image/original.png", dummy.presets);
+            
+            console.log(edit);
+            console.log(base64_encode(edit));
+
+            params = {
+                Bucket: s3BucketName,
+                Key: "edit.jpeg",
+                Body: base64_encode(edit)
+            }
+            s3.putObject(params)
+                .promise()
+                .then(() => {
+                    console.log(`✅ Uploaded image \'${edit}\' to \'${s3BucketName}\'`);
+                    res.send({response: "hurray"});
+                })
+                .catch(error => {
+                    console.error(`❌ Error during image upload to S3: ${error}`);
+                });
+        })
+        .catch((err) => res.json(err));
+
+
 
     // const params = { Bucket: bucketName, Key: res.preset.image };
 
-    // s3.getObject(params)
-    //     .promise()
-    //     .then((result) => {
-    //         // change this later
-    //         const image = JSON.parse(result.image);
-
-    //         transform(image, res.presets)
-    //     })
-    //     .catch((err) => res.json(err));
+    
 });
 
 router.get('/', (_, res) => {
@@ -135,6 +160,7 @@ function getDataUrlFromBuffer(imgBuffer, mimeType) {
 function transform(image, presets) {
     // resize image
     let info = sharp(image).resize(presets.width, presets.height);
+    let edit;
 
     // greyscale
     if (presets.greyscale) {
@@ -171,16 +197,23 @@ function transform(image, presets) {
 
     // transcode png
     if (presets.file == "png") {
-        edit = edit + ".png"
+        edit = "../../image/edit.png"
         info = info.png().toFile(edit);
     }
     // transcode jpeg
     if (presets.file == "jpeg") {
-        edit = edit + ".jpeg"
+        edit = "../image/edit.jpeg"
         info = info.jpeg().toFile(edit);
     }
 
     console.log(info);
+
+    return edit;
+}
+
+// https://www.codespeedy.com/convert-an-image-to-base64-in-node-js/#:~:text=Example%20of%20converting%20image%20file,%2C%20'base64')%3B%20%7D%20app.
+function base64_encode(file) {
+    return "data:image/gif;base64,"+fs.readFileSync(file, 'base64');
 }
 
 module.exports = router;
