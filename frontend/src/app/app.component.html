@@ -60,24 +60,21 @@
     </div>
   </div>
 
-  <div class="images-container-parent" *ngIf="inputImage">
+  <div class="images-container-parent" *ngIf="uploaded || imageChosen">
     <div class="image-display left">
       <mat-card>
         <mat-card-header>
           <mat-card-title>
-            {{ uploaded ? 'Input Image' : 'Input Image Preview' }}
-            <mat-icon class="inline-flex align-middle">
-              {{ uploaded ? 'check' : 'pending' }}
-            </mat-icon>
+            Input Image
           </mat-card-title>
-          <mat-card-subtitle>{{inputImage.name}}</mat-card-subtitle>
+          <mat-card-subtitle>{{inputImage?.name}}</mat-card-subtitle>
         </mat-card-header>
-        <img mat-card-image [src]="inputImage.url">
+        <img mat-card-image [src]="inputImage?.url">
         <mat-card-content>
-          <div *ngIf="inputImage.metadata as data">
+          <div *ngIf="inputImage?.metadata as data">
             <mat-card-title>Metadata</mat-card-title>
             <pre>
-  Name: {{ inputImage.name }}
+  Name: {{ inputImage?.name }}
   Format: {{ data.format | uppercase }}
   Size: {{ data.size | bytes:false }}
   Dimension: {{ data.width }} x {{ data.height }} px
@@ -87,8 +84,8 @@
           </div>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-raised-button>Transform</button>
-          <button mat-raised-button>Reset</button>
+          <button mat-raised-button  color="primary" (click)="triggerImageTransformation()">Transform</button>
+          <button mat-raised-button (click)="onInputImageReset()">Reset</button>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -113,7 +110,7 @@
           </div>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-button>Use as input</button>
+          <button mat-button (click)="triggerImageTransformation()">Use as input</button>
           <button mat-button (click)="onInputImageReset()">Reset</button>
         </mat-card-actions>
       </mat-card>

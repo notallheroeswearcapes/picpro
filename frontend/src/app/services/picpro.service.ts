@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Image } from '../models/image.interface';
 import { Metadata } from '../models/metadata.interface';
-import { UploadedImageResponse } from '../models/uploaded.image.response.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -34,11 +33,14 @@ export class PicproService {
   }
 
   uploadImage(image: Image): Observable<Metadata> {
-    return this.http.post<Metadata>(this.uploadImageUrl, image, this.httpPostOptions);
+    const formData = new FormData();
+    formData.append('file', image.file!);
+    formData.append('name', image.name);
+    return this.http.post<Metadata>(this.uploadImageUrl, formData);
   }
 
-  fetchImage(image: Image): Observable<UploadedImageResponse> {
-    return this.http.post<UploadedImageResponse>(this.fetchImageUrl, image, this.httpPostOptions);
+  fetchImage(image: Image): Observable<Image> {
+    return this.http.post<Image>(this.fetchImageUrl, { name: image.name }, this.httpPostOptions);
   }
 
   getAllImages(): Observable<string[]> {

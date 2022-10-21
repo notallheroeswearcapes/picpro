@@ -3,6 +3,8 @@ const express = require('express');
 const sharp = require("sharp");
 require('dotenv').config();
 const AWS = require('aws-sdk');
+const multer = require('multer');
+const upload = multer({storage: multer.memoryStorage()}).single('file');
 
 const router = express.Router();
 
@@ -14,20 +16,19 @@ AWS.config.update({
 const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
 const s3BucketName = process.env.S3_BUCKET_NAME;
 
-router.post('/upload', (req, res) => {
+router.post('/upload', upload, (req, res) => {
     console.log("⚡️ Received request to /images/upload");
-    const imgBuffer = getBufferFromBase64(req.body.url);
+    const file = req.file;
     const fileName = req.body.name;
-    sharp(imgBuffer)
+    sharp(file.buffer)
         .metadata()
         .then(metadataResult => {
             // use multipart upload for potentially large files
-            console.log(req.body.url.slice(0, 100));
             var upload = new AWS.S3.ManagedUpload({
                 params: {
                     Bucket: s3BucketName,
                     Key: fileName,
-                    Body: req.body.url
+                    Body: file.buffer
                 }
             });
             upload.promise()
@@ -53,15 +54,13 @@ router.post('/fetch', (req, res) => {
     }
     s3.getObject(params).promise()
         .then(data => {
-            // conversion does not quite work yet
-            const url = getBase64FromOctetStream(data.Body);
-            console.log(url.slice(0, 100));
-            const imgBuffer = Buffer.from(url, 'base64');
+            const imgBuffer = data.Body;
             sharp(imgBuffer).metadata()
                 .then(metadataResult => {
                     console.log(`✅ Successfully fetched image \'${fileName}\' from \'${s3BucketName}\'`);
                     res.send({
-                        url: url,
+                        name: fileName,
+                        url: getDataUrlFromBuffer(imgBuffer, metadataResult.mimeType),
                         metadata: metadataResult
                     });
                 })
@@ -128,12 +127,9 @@ router.get('/', (_, res) => {
         });
 });
 
-function getBufferFromBase64(url) {
-    return Buffer.from(url.split(',')[1], 'base64');
-}
-
-function getBase64FromOctetStream(stream) {
-    return Buffer.from(stream).toString('base64');
+function getDataUrlFromBuffer(imgBuffer, mimeType) {
+    const base64 = Buffer.from(imgBuffer).toString('base64');
+    return `data:image/${mimeType};base64,${base64}`;
 }
 
 function transform(image, presets) {

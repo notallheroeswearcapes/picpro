@@ -9,8 +9,8 @@ import { PicproService } from './services/picpro.service';
 })
 
 export class AppComponent {
-  title = 'frontend';
   uploaded: boolean = false;
+  imageChosen: boolean = false;
   images: string[] = [];
   chosenImageName: string = '';
   inputImageName: string = '';
@@ -36,10 +36,7 @@ export class AppComponent {
         this.inputImageName = file.name;
         this.inputImage = {
           name: file.name,
-          new: true,
-          type: file.type,
-          size: file.size,
-          lastModified: file.lastModified,
+          file: file,
           url: this.fileReader.result
         };
       };
@@ -49,17 +46,19 @@ export class AppComponent {
   onInputImageReset() {
     this.inputImage = undefined;
     this.inputImageName = '';
+    this.chosenImageName = '';
     this.uploaded = false;
+    this.imageChosen = false;
   }
 
   triggerImageRetrieval() {
     this.inputImage = {
       name: this.chosenImageName,
-      new: false
     };
     this.picproService.fetchImage(this.inputImage).subscribe(res => {
       this.inputImage!.metadata = res.metadata;
       this.inputImage!.url = res.url;
+      this.imageChosen = true;
     });
   }
 
@@ -74,6 +73,10 @@ export class AppComponent {
     }
   }
 
+  triggerImageTransformation() {
+    console.log("transform called!");
+  }
+
   setCorrectFileName(image: Image, suppliedName: string): string {
     if (!suppliedName.includes('.')) {
       return `${suppliedName}${this.extractImageTypeSuffix(image)}`;
@@ -83,6 +86,6 @@ export class AppComponent {
   }
 
   extractImageTypeSuffix(image: Image): string {
-    return `.${image?.type?.split('/')[1]}`;
+    return `.${image?.file?.type?.split('/')[1]}`;
   }
 }
