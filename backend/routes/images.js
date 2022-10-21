@@ -211,6 +211,7 @@ function transform(image, presets) {
     return edit;
 }
 
+// https://www.codespeedy.com/convert-an-image-to-base64-in-node-js/#:~:text=Example%20of%20converting%20image%20file,%2C%20'base64')%3B%20%7D%20app.
 function base64_encode(file) {
     return "data:image/gif;base64,"+fs.readFileSync(file, 'base64');
 }
