@@ -4,7 +4,7 @@ const sharp = require("sharp");
 require('dotenv').config();
 const AWS = require('aws-sdk');
 const multer = require('multer');
-const upload = multer({storage: multer.memoryStorage()}).single('file');
+const upload = multer({ storage: multer.memoryStorage() }).single('file');
 const fs = require('fs');
 
 const router = express.Router();
@@ -19,6 +19,7 @@ const s3BucketName = process.env.S3_BUCKET_NAME;
 
 router.post('/upload', upload, (req, res) => {
     console.log("⚡️ Received request to /images/upload");
+    console.log(req.file);
     const file = req.file;
     const fileName = req.body.name;
     sharp(file.buffer)
@@ -79,7 +80,7 @@ dummy = {
     presets: {
         width: 400,
         height: 200,
-        greyscale: false,
+        greyscale: true,
         blackwhite: false,
         brightness: false,
         bri_set: 2,
@@ -87,7 +88,7 @@ dummy = {
         sat_set: 0.2,
         hue: false,
         hue_set: 180,
-        blur: true,
+        blur: false,
         file: "jpeg"
     }
 }
@@ -97,41 +98,17 @@ router.post('/transform', (req, res) => {
     console.log("⚡️ Received request to /images/transform");
     console.log(req.query.filename);
 
-    const params = { Bucket: s3BucketName, Key: req.query.filename};
+    const params = { Bucket: s3BucketName, Key: req.query.filename };
     s3.getObject(params)
         .promise()
         .then((result) => {
-            // change this later
+
             console.log(result);
-            // console.log(getBase64FromOctetStream(result.Body));
-
-            let edit = transform("../image/original.png", dummy.presets);
-            
-            console.log(edit);
-            console.log(base64_encode(edit));
-
-            params = {
-                Bucket: s3BucketName,
-                Key: "edit.jpeg",
-                Body: base64_encode(edit)
-            }
-            s3.putObject(params)
-                .promise()
-                .then(() => {
-                    console.log(`✅ Uploaded image \'${edit}\' to \'${s3BucketName}\'`);
-                    res.send({response: "hurray"});
-                })
-                .catch(error => {
-                    console.error(`❌ Error during image upload to S3: ${error}`);
-                });
+            let info = transform(result.Body, dummy.presets);
+            res.send(info);
         })
         .catch((err) => res.json(err));
 
-
-
-    // const params = { Bucket: bucketName, Key: res.preset.image };
-
-    
 });
 
 router.get('/', (_, res) => {
@@ -152,68 +129,86 @@ router.get('/', (_, res) => {
         });
 });
 
-function transform(image, presets) {
+async function transform(image, presets) {
     // resize image
-    let info = sharp(image).resize(presets.width, presets.height);
-    let edit;
+    let info = await sharp(image).resize(presets.width, presets.height);
+    let localEdit;
+    let filename;
+    let buffer;
 
     // greyscale
     if (presets.greyscale) {
-        info = info.greyscale();
+        info = await info.greyscale();
     }
     // black and white
     if (presets.blackwhite) {
-        info = info.threshold(100);
+        info = await info.threshold(100);
     }
 
     // brightness
     if (presets.brightness) {
-        info = info.modulate({
+        info = await info.modulate({
             brightness: presets.bri_set,
         });
     }
     // saturation
     if (presets.saturation) {
-        info = info.modulate({
+        info = await info.modulate({
             saturation: presets.sat_set,
         });
     }
     // hue
     if (presets.hue) {
-        info = info.modulate({
+        info = await info.modulate({
             hue: presets.hue_set,
         });
     }
 
     // blur
     if (presets.blur) {
-        info = info.blur(15);
+        info = await info.blur(15);
     }
 
     // transcode png
     if (presets.file == "png") {
-        edit = "../../image/edit.png"
-        info = info.png().toFile(edit);
+        filename = "edit.png"
+        buffer = await info.png().toBuffer();
+
+        localEdit = "../../image/edit.png"
+        info = await info.png().toFile(localEdit);
     }
     // transcode jpeg
     if (presets.file == "jpeg") {
-        edit = "../image/edit.jpeg"
-        info = info.jpeg().toFile(edit);
+        filename = "edit.jpeg"
+        buffer = await info.jpeg().toBuffer();
+
+        localEdit = "../image/edit.jpeg"
+        info = await info.jpeg().toFile(localEdit);
     }
 
-    console.log(info);
+    console.log(filename);
+    console.log(buffer);
 
-    return edit;
+    var upload = new AWS.S3.ManagedUpload({
+        params: {
+            Bucket: s3BucketName,
+            Key: filename,
+            Body: buffer
+        }
+    });
+    upload.promise()
+        .then(() => {
+            console.log(`✅ Uploaded image \'${filename}\' to \'${s3BucketName}\'`);
+        })
+        .catch(error => {
+            console.error(`❌ Error during image upload to S3: ${error}`);
+        });
+    return info;
 }
 
 function getDataUrlFromBuffer(imgBuffer, mimeType) {
     const base64 = Buffer.from(imgBuffer).toString('base64');
     return `data:image/${mimeType};base64,${base64}`;
-}
-
-// https://www.codespeedy.com/convert-an-image-to-base64-in-node-js/#:~:text=Example%20of%20converting%20image%20file,%2C%20'base64')%3B%20%7D%20app.
-function base64_encode(file) {
-    return "data:image/gif;base64,"+fs.readFileSync(file, 'base64');
 }
 
 module.exports = router;

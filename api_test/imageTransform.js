@@ -67,9 +67,12 @@ const fs = require("fs");
         if (dummy.file == "jpeg") {
             edit = edit + ".jpeg"
             info = await info.jpeg().toFile(edit);
+            buffer = await info.jpeg().toBuffer();
         }
 
         console.log(info);
+        console.log(buffer);
+
     } catch (error) {
         console.log(error);
     }
