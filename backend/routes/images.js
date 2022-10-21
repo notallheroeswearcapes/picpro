@@ -152,11 +152,6 @@ router.get('/', (_, res) => {
         });
 });
 
-function getDataUrlFromBuffer(imgBuffer, mimeType) {
-    const base64 = Buffer.from(imgBuffer).toString('base64');
-    return `data:image/${mimeType};base64,${base64}`;
-}
-
 function transform(image, presets) {
     // resize image
     let info = sharp(image).resize(presets.width, presets.height);
@@ -209,6 +204,11 @@ function transform(image, presets) {
     console.log(info);
 
     return edit;
+}
+
+function getDataUrlFromBuffer(imgBuffer, mimeType) {
+    const base64 = Buffer.from(imgBuffer).toString('base64');
+    return `data:image/${mimeType};base64,${base64}`;
 }
 
 // https://www.codespeedy.com/convert-an-image-to-base64-in-node-js/#:~:text=Example%20of%20converting%20image%20file,%2C%20'base64')%3B%20%7D%20app.
