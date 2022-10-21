@@ -3,6 +3,7 @@ const express = require('express');
 const sharp = require("sharp");
 require('dotenv').config();
 const AWS = require('aws-sdk');
+const fs = require('fs');
 
 const router = express.Router();
 
@@ -105,15 +106,15 @@ router.post('/transform', (req, res) => {
             console.log(result);
             // console.log(getBase64FromOctetStream(result.Body));
 
-            // transform(image, req.presets);
             let edit = transform("../image/original.png", dummy.presets);
             
-            console.log(edit)
+            console.log(edit);
+            console.log(base64_encode(edit));
 
             params = {
                 Bucket: s3BucketName,
-                Key: edit,
-                Body: "12345"
+                Key: "edit.jpeg",
+                Body: base64_encode(edit)
             }
             s3.putObject(params)
                 .promise()
@@ -208,6 +209,10 @@ function transform(image, presets) {
     console.log(info);
 
     return edit;
+}
+
+function base64_encode(file) {
+    return "data:image/gif;base64,"+fs.readFileSync(file, 'base64');
 }
 
 module.exports = router;
