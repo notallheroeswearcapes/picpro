@@ -171,26 +171,32 @@ function transform(imgBuffer, transformation) {
         transformationPipeline.blur(transformation.blur);
     }
 
+    // rotate
     if (transformation.rotationAngle) {
         transformationPipeline.rotate(transformation.rotationAngle);
     }
 
+    // flip
     if (transformation.flip) {
         transformationPipeline.flip();
     }
 
+    // flop
     if (transformation.flop) {
         transformationPipeline.flop();
     }
 
+    // sharpen
     if (transformation.sharpen) {
         transformationPipeline.sharpen();
     }
 
+    // transcode
     if (transformation.outputType) {
         transformationPipeline.toFormat(transformation.outputType);
     }
 
+    // generate buffer
     return transformationPipeline.toBuffer();
 }
 
