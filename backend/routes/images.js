@@ -19,7 +19,6 @@ const s3BucketName = process.env.S3_BUCKET_NAME;
 
 router.post('/upload', upload, (req, res) => {
     console.log("⚡️ Received request to /images/upload");
-    console.log(req.file);
     const file = req.file;
     const fileName = req.body.name;
     sharp(file.buffer)
@@ -71,43 +70,46 @@ router.post('/fetch', (req, res) => {
                 });
         })
         .catch(error => {
-            console.error(`❌ Error when fetching image \'${fileName}\' from S3: ${error}`);
+            console.error(`❌ Error during image retrieval of file \'${fileName}\' from S3: ${error}`);
         });
 });
-
-// example of json response
-dummy = {
-    presets: {
-        width: 400,
-        height: 200,
-        greyscale: true,
-        blackwhite: false,
-        brightness: false,
-        bri_set: 2,
-        saturation: false,
-        sat_set: 0.2,
-        hue: false,
-        hue_set: 180,
-        blur: false,
-        file: "jpeg"
-    }
-}
 
 router.post('/transform', (req, res) => {
     // main endpoint for image transformation, use sharp here
     console.log("⚡️ Received request to /images/transform");
-    console.log(req.query.filename);
-
-    const params = { Bucket: s3BucketName, Key: req.query.filename };
-    s3.getObject(params)
-        .promise()
-        .then((result) => {
-
-            console.log(result);
-            let info = transform(result.Body, dummy.presets);
-            res.send(info);
+    console.log(req.body);
+    const inputImageName = req.body.imageName;
+    const params = { Bucket: s3BucketName, Key: inputImageName };
+    s3.getObject(params).promise()
+        .then(data => {
+            const imgBuffer = data.Body;
+            transform(imgBuffer, req.body)
+                .then(outputImgBuffer => {
+                    const url = getDataUrlFromBuffer(outputImgBuffer);
+                    const fileNameParts = inputImageName.split('.');
+                    const outputImageName = fileNameParts[0] + '_transformed.' + fileNameParts[1];
+                    sharp(outputImgBuffer).metadata()
+                        .then(outputMetadata => {
+                            res.send({
+                                name: outputImageName,
+                                url: url,
+                                metadata: outputMetadata
+                            });
+                        })
+                        .catch(metadataError => {
+                            console.error(`❌ Error during image analysis for metadata: ${metadataError}`);
+                            res.status(500).send(metadataError);
+                        });
+                })
+                .catch(transformationError => {
+                    console.error(`❌ Error during image transformation: ${transformationError}`);
+                    res.status(500).send(transformationError);
+                });
         })
-        .catch((err) => res.json(err));
+        .catch(retrievalError => {
+            console.error(`❌ Error during image retrieval of file \'${inputImageName}\' from S3: ${retrievalError}`);
+            res.status(500).send(retrievalError);
+        });
 
 });
 
@@ -129,81 +131,67 @@ router.get('/', (_, res) => {
         });
 });
 
-async function transform(image, presets) {
+function transform(imgBuffer, transformation) {
     // resize image
-    let info = await sharp(image).resize(presets.width, presets.height);
-    let localEdit;
-    let filename;
-    let buffer;
+    let transformationPipeline = sharp(imgBuffer).resize(transformation.width, transformation.height);
 
     // greyscale
-    if (presets.greyscale) {
-        info = await info.greyscale();
+    if (transformation.greyscale) {
+        transformationPipeline.greyscale();
     }
+
     // black and white
-    if (presets.blackwhite) {
-        info = await info.threshold(100);
+    if (transformation.blackwhite) {
+        transformationPipeline.threshold(100);
     }
 
     // brightness
-    if (presets.brightness) {
-        info = await info.modulate({
-            brightness: presets.bri_set,
+    if (transformation.brightness) {
+        transformationPipeline.modulate({
+            brightness: transformation.brightness,
         });
     }
+
     // saturation
-    if (presets.saturation) {
-        info = await info.modulate({
-            saturation: presets.sat_set,
+    if (transformation.saturation) {
+        transformationPipeline.modulate({
+            saturation: transformation.saturation,
         });
     }
+
     // hue
-    if (presets.hue) {
-        info = await info.modulate({
-            hue: presets.hue_set,
+    if (transformation.hue) {
+        transformationPipeline.modulate({
+            hue: transformation.hue,
         });
     }
 
     // blur
-    if (presets.blur) {
-        info = await info.blur(15);
+    if (transformation.blur) {
+        transformationPipeline.blur(transformation.blur);
     }
 
-    // transcode png
-    if (presets.file == "png") {
-        filename = "edit.png"
-        buffer = await info.png().toBuffer();
-
-        localEdit = "../../image/edit.png"
-        info = await info.png().toFile(localEdit);
-    }
-    // transcode jpeg
-    if (presets.file == "jpeg") {
-        filename = "edit.jpeg"
-        buffer = await info.jpeg().toBuffer();
-
-        localEdit = "../image/edit.jpeg"
-        info = await info.jpeg().toFile(localEdit);
+    if (transformation.rotationAngle) {
+        transformationPipeline.rotate(transformation.rotationAngle);
     }
 
-    console.log(filename);
-    console.log(buffer);
+    if (transformation.flip) {
+        transformationPipeline.flip();
+    }
 
-    var upload = new AWS.S3.ManagedUpload({
-        params: {
-            Bucket: s3BucketName,
-            Key: filename,
-            Body: buffer
-        }
-    });
-    upload.promise()
-        .then(() => {
-            console.log(`✅ Uploaded image \'${filename}\' to \'${s3BucketName}\'`);
-        })
-        .catch(error => {
-            console.error(`❌ Error during image upload to S3: ${error}`);
-        });
-    return info;
+    if (transformation.flop) {
+        transformationPipeline.flop();
+    }
+
+    if (transformation.sharpen) {
+        transformationPipeline.sharpen();
+    }
+
+    if (transformation.outputType) {
+        transformationPipeline.toFormat(transformation.outputType);
+    }
+
+    return transformationPipeline.toBuffer();
 }
 
 function getDataUrlFromBuffer(imgBuffer, mimeType) {

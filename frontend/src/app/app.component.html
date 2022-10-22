@@ -86,7 +86,101 @@
             <mat-icon>transform</mat-icon>
           </mat-panel-description>
         </mat-expansion-panel-header>
-        <span>Content</span>
+
+        <div class="file-input-container">
+
+          <div class="align-middle">
+            <mat-form-field appearance="fill" class="trf-width">
+              <mat-label>Output format</mat-label>
+              <mat-select [(value)]="transformation.outputType">
+                <mat-option>None</mat-option>
+                <mat-option *ngFor="let type of mimeTypes" [value]="type">
+                  {{ type }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="align-middle spacing-small">
+            <mat-form-field appearance="fill" class="trf-width">
+              <mat-label>Width</mat-label>
+              <input matInput autofocus type="number" [(ngModel)]="transformation.width">
+              <span matSuffix>px</span>
+              <button *ngIf="transformation.width" matSuffix mat-icon-button aria-label="Clear"
+                (click)="transformation!.width=undefined">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+
+          <div class="align-middle spacing-small">
+            <mat-form-field appearance="fill" class="trf-width">
+              <mat-label>Height</mat-label>
+              <input matInput autofocus type="number" [(ngModel)]="transformation.height">
+              <span matSuffix>px</span>
+              <button *ngIf="transformation.height" matSuffix mat-icon-button aria-label="Clear"
+                (click)="transformation!.width=undefined">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+
+          <div class="align-middle spacing-small">
+            <mat-form-field appearance="fill" class="trf-width">
+              <mat-label>Rotation angle</mat-label>
+              <input matInput autofocus type="number" [(ngModel)]="transformation.rotationAngle">
+              <span matSuffix>°</span>
+              <button *ngIf="transformation.rotationAngle" matSuffix mat-icon-button aria-label="Clear"
+                (click)="transformation!.rotationAngle=undefined">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+
+          <div class="align-middle spacing-small">
+            <mat-form-field appearance="fill" class="trf-width">
+              <mat-label>Brightness</mat-label>
+              <input matInput autofocus type="number" [(ngModel)]="transformation.brightness">
+              <button *ngIf="transformation.brightness" matSuffix mat-icon-button aria-label="Clear"
+                (click)="transformation!.brightness=undefined">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+
+          <div class="align-middle spacing-small">
+            <mat-form-field appearance="fill" class="trf-width">
+              <mat-label>Hue</mat-label>
+              <input matInput autofocus type="number" [(ngModel)]="transformation.hue">
+              <span matSuffix>°</span>
+              <button *ngIf="transformation.hue" matSuffix mat-icon-button aria-label="Clear"
+                (click)="transformation!.hue=undefined">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+
+          <div class="align-middle spacing-small">
+            <mat-form-field appearance="fill" class="trf-width">
+              <mat-label>Saturation</mat-label>
+              <input matInput autofocus type="number" [(ngModel)]="transformation.saturation">
+              <button *ngIf="transformation.saturation" matSuffix mat-icon-button aria-label="Clear"
+                (click)="transformation!.saturation=undefined">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="file-input-container spacing-vertical-small">
+          <mat-checkbox ngDefaultControl [(ngModel)]="transformation.flip">Flip</mat-checkbox>
+          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.flop">Flop</mat-checkbox>
+          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.sharpen">Sharpen</mat-checkbox>
+          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.blur">Blur</mat-checkbox>
+          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.greyscale">Greyscale</mat-checkbox>
+          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.blackwhite">Black & White</mat-checkbox>
+        </div>
+
       </mat-expansion-panel>
 
       <mat-expansion-panel>
@@ -118,7 +212,7 @@
               <mat-card-title>Metadata</mat-card-title>
               <pre>
   Name: {{ inputImage?.name }}
-  Format: {{ data.format | uppercase }}
+  Type: {{ data.format | uppercase }}
   Size: {{ data.size | bytes:false }}
   Dimension: {{ data.width }} x {{ data.height }} px
   Density {{ data.density }} dpi
@@ -145,7 +239,7 @@
               <pre>
   Name: {{ outputImage.name }}
   Format: {{ data.format | uppercase }}
-  Size: {{ data.size | bytes:false }}
+  Type: {{ data.size | bytes:false }}
   Dimension: {{ data.width }} x {{ data.height }} px
   Density {{ data.density }} dpi
   Channels: {{ data.channels }}

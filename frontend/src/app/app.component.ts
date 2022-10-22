@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { Image } from './models/image.interface';
+import { Metadata } from './models/metadata.interface';
+import { Transformation } from './models/transformation.interface';
 import { PicproService } from './services/picpro.service';
 
 @Component({
@@ -17,6 +19,16 @@ export class AppComponent {
   inputImage?: Image;
   outputImage?: Image;
   fileReader: FileReader = new FileReader();
+  mimeTypes: string[] = ["JPEG", "PNG", "WEBP", "GIF", "AVIF", "TIFF", "RAW"];
+  transformation: Transformation = {
+    outputType: '',
+    flip: false,
+    flop: false,
+    sharpen: false,
+    blur: false,
+    greyscale: false,
+    blackwhite: false
+  };
 
   constructor(public picproService: PicproService) { }
 
@@ -59,22 +71,29 @@ export class AppComponent {
       this.inputImage!.metadata = res.metadata;
       this.inputImage!.url = res.url;
       this.imageChosen = true;
+      this.transformation.imageName = this.chosenImageName;
+      this.setTransformationFromMetadata(res.metadata!);
     });
   }
 
   triggerInputImageUpload() {
     if (this.inputImage) {
       this.inputImage.name = this.setCorrectFileName(this.inputImage, this.inputImageName);
+      this.transformation.imageName = this.inputImage.name;
       this.picproService.uploadImage(this.inputImage).subscribe(res => {
-        // trigger upload to S3, retrieve metadata from image to display to user
         this.inputImage!.metadata = res;
         this.uploaded = true;
+        this.setTransformationFromMetadata(res!);
       });
     }
   }
 
   triggerImageTransformation() {
-    console.log("transform called!");
+    if (this.inputImage) {
+      this.picproService.transformImage(this.transformation).subscribe(res => {
+        this.outputImage = res;
+      });
+    }
   }
 
   setCorrectFileName(image: Image, suppliedName: string): string {
@@ -87,5 +106,12 @@ export class AppComponent {
 
   extractImageTypeSuffix(image: Image): string {
     return `.${image?.file?.type?.split('/')[1]}`;
+  }
+
+
+  setTransformationFromMetadata(metadata: Metadata) {
+    this.transformation.outputType = metadata.format.toUpperCase();
+    this.transformation.width = metadata.width;
+    this.transformation.height = metadata.height;
   }
 }

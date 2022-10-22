@@ -52,6 +52,14 @@
     padding: 10px 20px 10px 20px;
 }
 
+.trf-width {
+    max-width: 170px;
+}
+
+.spacing-vertical-small {
+    margin-top: 15px;
+}
+
 ::ng-deep .mat-form-field-wrapper {
     margin-bottom: -1.25em;
 }

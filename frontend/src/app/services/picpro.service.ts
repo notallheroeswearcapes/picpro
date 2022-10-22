@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Image } from '../models/image.interface';
 import { Metadata } from '../models/metadata.interface';
+import { Transformation } from '../models/transformation.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class PicproService {
   getImagesUrl = "/images";
   uploadImageUrl = "/images/upload";
   fetchImageUrl = "/images/fetch";
+  transformImageUrl = "/images/transform";
   presetsTestUrl = "/presets/test";
   httpPostOptions = {
     headers: new HttpHeaders({
@@ -45,5 +47,9 @@ export class PicproService {
 
   getAllImages(): Observable<string[]> {
     return this.http.get<string[]>(this.getImagesUrl);
+  }
+
+  transformImage(transformation: Transformation): Observable<Image> {
+    return this.http.post<Image>(this.transformImageUrl, transformation, this.httpPostOptions);
   }
 }
