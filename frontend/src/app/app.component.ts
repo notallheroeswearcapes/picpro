@@ -22,15 +22,7 @@ export class AppComponent {
   outputImage?: Image;
   fileReader: FileReader = new FileReader();
   mimeTypes: string[] = ["JPEG", "PNG", "WEBP", "GIF", "AVIF", "TIFF", "RAW"];
-  transformation: Transformation = {
-    outputType: '',
-    flip: false,
-    flop: false,
-    sharpen: false,
-    blur: false,
-    greyscale: false,
-    blackwhite: false
-  };
+  transformation: Transformation = this.initializeTransformation();
 
   constructor(
     public picproService: PicproService,
@@ -111,6 +103,8 @@ export class AppComponent {
     this.chosenImageName = '';
     this.uploaded = false;
     this.imageChosen = true;
+    this.transformation = this.initializeTransformation();
+    this.setTransformationFromMetadata(this.inputImage?.metadata!);
   }
 
   openSaveOutputDialog() {
@@ -142,5 +136,17 @@ export class AppComponent {
     this.transformation.outputType = metadata.format.toUpperCase();
     this.transformation.width = metadata.width;
     this.transformation.height = metadata.height;
+  }
+
+  initializeTransformation() {
+    return {
+      outputType: '',
+      flip: false,
+      flop: false,
+      sharpen: false,
+      blur: false,
+      greyscale: false,
+      blackwhite: false
+    };
   }
 }
