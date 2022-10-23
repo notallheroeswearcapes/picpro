@@ -31,6 +31,12 @@
         <div class="file-input-container">
 
           <div class="align-middle">
+            <button mat-mini-fab color="primary" (click)="getAllImages()">
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+
+          <div class="align-middle spacing-small">
             <mat-form-field appearance="fill">
               <mat-label>Select a stored image</mat-label>
               <mat-select [(value)]="chosenImageName">
@@ -222,7 +228,7 @@
           </mat-card-content>
           <mat-card-actions>
             <button mat-raised-button color="primary" (click)="triggerImageTransformation()">Transform</button>
-            <button mat-raised-button (click)="onInputImageReset()">Reset</button>
+            <button mat-raised-button color="warn" (click)="onInputImageReset()">Reset</button>
           </mat-card-actions>
         </mat-card>
       </div>
@@ -247,8 +253,9 @@
             </div>
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button (click)="triggerImageTransformation()">Use as input</button>
-            <button mat-button (click)="onInputImageReset()">Reset</button>
+            <button mat-raised-button color="primary" (click)="openSaveOutputDialog()">Save</button>
+            <button mat-raised-button (click)="triggerImageTransformation()">Use as input</button>
+            <button mat-raised-button color="warn" (click)="onOutputImageReset()">Reset</button>
           </mat-card-actions>
         </mat-card>
       </div>

@@ -10,6 +10,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
@@ -21,10 +22,12 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LoadingInterceptor } from './interceptors/loading.interceptor';
+import { SaveOutputDialog } from './save-output-dialog/save-output-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    SaveOutputDialog,
     FormatFileSizePipe
   ],
   imports: [
@@ -45,7 +48,8 @@ import { LoadingInterceptor } from './interceptors/loading.interceptor';
     MatSelectModule,
     MatProgressBarModule,
     MatExpansionModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatDialogModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true }

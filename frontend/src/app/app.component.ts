@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Image } from './models/image.interface';
 import { Metadata } from './models/metadata.interface';
 import { Transformation } from './models/transformation.interface';
+import { SaveOutputDialog } from './save-output-dialog/save-output-dialog.component';
 import { PicproService } from './services/picpro.service';
 
 @Component({
@@ -30,12 +32,13 @@ export class AppComponent {
     blackwhite: false
   };
 
-  constructor(public picproService: PicproService) { }
+  constructor(
+    public picproService: PicproService,
+    public dialog: MatDialog
+  ) { }
 
   ngOnInit() {
-    this.picproService.getAllImages().subscribe(res => {
-      this.images = res;
-    });
+    this.getAllImages();
   }
 
   onFileSelected(event: any) {
@@ -63,6 +66,10 @@ export class AppComponent {
     this.imageChosen = false;
   }
 
+  onOutputImageReset() {
+    this.outputImage = undefined;
+  }
+
   triggerImageRetrieval() {
     this.inputImage = {
       name: this.chosenImageName,
@@ -83,6 +90,7 @@ export class AppComponent {
       this.picproService.uploadImage(this.inputImage).subscribe(res => {
         this.inputImage!.metadata = res;
         this.uploaded = true;
+        this.getAllImages();
         this.setTransformationFromMetadata(res!);
       });
     }
@@ -94,6 +102,18 @@ export class AppComponent {
         this.outputImage = res;
       });
     }
+  }
+
+  openSaveOutputDialog() {
+    this.dialog.open(SaveOutputDialog, { 
+      data: this.outputImage
+    });
+  }
+
+  getAllImages() {
+    this.picproService.getAllImages().subscribe(res => {
+      this.images = res;
+    });
   }
 
   setCorrectFileName(image: Image, suppliedName: string): string {

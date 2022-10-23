@@ -10,7 +10,6 @@ const fs = require('fs');
 const router = express.Router();
 
 // Cloud Services Setup
-// Create unique bucket name
 AWS.config.update({
     region: process.env.REGION
 });
@@ -77,7 +76,6 @@ router.post('/fetch', (req, res) => {
 router.post('/transform', (req, res) => {
     // main endpoint for image transformation, use sharp here
     console.log("⚡️ Received request to /images/transform");
-    console.log(req.body);
     const inputImageName = req.body.imageName;
     const params = { Bucket: s3BucketName, Key: inputImageName };
     s3.getObject(params).promise()
@@ -87,11 +85,11 @@ router.post('/transform', (req, res) => {
                 .then(outputImgBuffer => {
                     const url = getDataUrlFromBuffer(outputImgBuffer);
                     const fileNameParts = inputImageName.split('.');
-                    const outputImageName = fileNameParts[0] + '_transformed.' + fileNameParts[1];
+                    const outputImageName = fileNameParts[0] + '_transformed.';
                     sharp(outputImgBuffer).metadata()
                         .then(outputMetadata => {
                             res.send({
-                                name: outputImageName,
+                                name: outputImageName + outputMetadata.format.toLowerCase(),
                                 url: url,
                                 metadata: outputMetadata
                             });

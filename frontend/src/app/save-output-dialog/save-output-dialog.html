@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Save output image</h1>
+<mat-dialog-content>
+    <mat-form-field appearance="fill">
+        <mat-label>Image name</mat-label>
+        <input matInput autofocus type="text" [(ngModel)]="chosenImageName">
+        <button *ngIf="chosenImageName" matSuffix mat-icon-button aria-label="Clear" (click)="chosenImageName=''">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-raised-button color="primary" [mat-dialog-close]="true" (click)="uploadImage()">Upload</button>
+    <button mat-raised-button color="primary" [mat-dialog-close]="true" (click)="downloadImage()">Download</button>
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+</mat-dialog-actions>
