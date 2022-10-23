@@ -59,14 +59,21 @@ router.get('/test', (req, res) => {
 
 router.get('/', (req, res) => {
     console.log("⚡️ Received request to /presets/");
+
+    // return the "name" attributes of all stored preset objects in redis 
 })
 
 router.post('/fetch', (req, res) => {
     console.log("⚡️ Received request to /presets/fetch");
+
+    // return a specific preset object by its "name" attribute that is passed in the request body
 })
 
 router.post('/upload', (req, res) => {
     console.log("⚡️ Received request to /presets/upload");
+
+    // upload a a preset object that is passed in the request body to redis and return a boolean if the operation was successful
+    // we might change this later to a PUT method depending if we really need the success boolean, but it's fine for now
 })
 
 module.exports = router;
