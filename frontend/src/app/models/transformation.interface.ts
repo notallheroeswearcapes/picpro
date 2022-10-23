@@ -12,6 +12,5 @@ export interface Transformation {
     sharpen: boolean,
     blur: boolean,
     greyscale: boolean,
-    blackwhite: boolean,
-
+    blackwhite: boolean
 }

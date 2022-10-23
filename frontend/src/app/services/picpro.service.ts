@@ -13,7 +13,7 @@ export class PicproService {
   private isLoading$$ = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoading$$.asObservable();
 
-  getImagesUrl = "/images";
+  getImagesUrl = "/images/";
   uploadImageUrl = "/images/upload";
   fetchImageUrl = "/images/fetch";
   transformImageUrl = "/images/transform";
