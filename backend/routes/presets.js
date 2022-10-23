@@ -39,8 +39,13 @@ dummy1 = {
 // This section will change for Cloud Services
 // Redis setup
 const redis = require('redis');
+
 const redisClient = redis.createClient();
-redisClient.connect()
+redisClient.connect();
+
+redisClient.on("connect", function (result) {
+    console.log("Successful Connection to Redis")
+});
 
 router.get('/test', (req, res) => {
     console.log("⚡️ Received request to /presets/test");
@@ -52,16 +57,16 @@ router.get('/', (req, res) => {
     console.log("⚡️ Received request to /presets/");
 
     // return the "name" attributes of all stored preset objects in redis
-    // redisClient.get(dummy.presetName).then((result) => {
-    //     if (result) {
-    //         // insert code
-    //         console.log(result);
-    //         res.send(result);
-    //     }
-    // })
-    // .catch((err) => {
-    //     console.error(`❌ Error when fetching preset * from redis: ${err}`);
-    // });
+    redisClient.keys('*', function (err, keys) {
+        if (err) return console.log(err);
+         
+        for(var i = 0, len = keys.length; i < len; i++) {
+          console.log(keys[i]);
+        }
+      })
+    .catch((err) => {
+        console.error(`❌ Error when fetching preset * from redis: ${err}`);
+    });
 })
 
 router.post('/fetch', (req, res) => {
@@ -69,7 +74,7 @@ router.post('/fetch', (req, res) => {
 
     // return a specific preset object by its "name" attribute that is passed in the request body
     // retreive from redis
-    const redisKey = dummy.presetName
+    const redisKey = dummy1.presetName
     redisClient.get(redisKey).then((result) => {
         if (result) {
             // insert code
