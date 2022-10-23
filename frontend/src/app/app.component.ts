@@ -104,6 +104,15 @@ export class AppComponent {
     }
   }
 
+  useOutputImageAsInputImage() {
+    this.getAllImages();
+    this.inputImage = this.outputImage;
+    this.outputImage = undefined;
+    this.chosenImageName = '';
+    this.uploaded = false;
+    this.imageChosen = true;
+  }
+
   openSaveOutputDialog() {
     this.dialog.open(SaveOutputDialog, { 
       data: this.outputImage
