@@ -33,28 +33,40 @@ router.get('/test', (req, res) => {
             console.log(err);
         });
 
-        // save in redis
-        // const redisJSON = JSON.parse(dummy.presets);
-        const redisJSON = dummy.presets;
-        redisJSON.source = "Redis Cache";
-        redisClient.setEx(
-            redisKeys,
-            3600,
-            JSON.stringify({ source: "Redis Cache", ...redisJSON })
-        );
-        
-        // // retreive from redis
-        // redisClient.get(redisKeys).then((result) => {
-        //     if (result) {
-        //         // insert code
-        //         console.log(result)
-        //     }
-        // })
-        // .catch((err) => {
-        //     console.error(`❌ Error when fetching preset \'${redisKeys}\' from redis: ${err}`);
-        // });
+    // save in redis
+    // const redisJSON = JSON.parse(dummy.presets);
+    const redisJSON = dummy.presets;
+    redisJSON.source = "Redis Cache";
+    redisClient.setEx(
+        redisKeys,
+        3600,
+        JSON.stringify({ source: "Redis Cache", ...redisJSON })
+    );
+
+    // // retreive from redis
+    // redisClient.get(redisKeys).then((result) => {
+    //     if (result) {
+    //         // insert code
+    //         console.log(result)
+    //     }
+    // })
+    // .catch((err) => {
+    //     console.error(`❌ Error when fetching preset \'${redisKeys}\' from redis: ${err}`);
+    // });
 
     res.send("Received successfully.")
 });
+
+router.get('/', (req, res) => {
+    console.log("⚡️ Received request to /presets/");
+})
+
+router.post('/fetch', (req, res) => {
+    console.log("⚡️ Received request to /presets/fetch");
+})
+
+router.post('/upload', (req, res) => {
+    console.log("⚡️ Received request to /presets/upload");
+})
 
 module.exports = router;

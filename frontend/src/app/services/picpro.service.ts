@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Image } from '../models/image.interface';
 import { Metadata } from '../models/metadata.interface';
 import { Transformation } from '../models/transformation.interface';
+import { Preset } from '../models/preset.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,9 @@ export class PicproService {
   uploadImageUrl = "/images/upload";
   fetchImageUrl = "/images/fetch";
   transformImageUrl = "/images/transform";
-  presetsTestUrl = "/presets/test";
+  getPresetsUrl = "/presets/";
+  fetchPresetUrl = "/presets/fetch";
+  savePresetUrl = "/presets/save";
   httpPostOptions = {
     headers: new HttpHeaders({
       'Content-Type':  'application/json'
@@ -30,8 +33,16 @@ export class PicproService {
     this.isLoading$$.next(isLoading);
   }
 
-  sendPresetsTestRequest(): Observable<string> {
-    return this.http.get(this.presetsTestUrl, { responseType: 'text' });
+  getAllPresets(): Observable<string[]> {
+    return this.http.get<string[]>(this.getPresetsUrl);
+  }
+
+  fetchPreset(presetName: string): Observable<Preset> {
+    return this.http.post<Preset>(this.fetchPresetUrl, { name: presetName }, this.httpPostOptions);
+  }
+
+  savePreset(preset: Preset): Observable<boolean> {
+    return this.http.post<boolean>(this.savePresetUrl, preset, this.httpPostOptions);
   }
 
   uploadImage(image: Image): Observable<Metadata> {

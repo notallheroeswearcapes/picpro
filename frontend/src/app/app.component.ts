@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Image } from './models/image.interface';
+import { Preset } from './models/preset.interface';
 import { Metadata } from './models/metadata.interface';
 import { Transformation } from './models/transformation.interface';
 import { SaveOutputDialog } from './save-output-dialog/save-output-dialog.component';
@@ -23,6 +24,9 @@ export class AppComponent {
   fileReader: FileReader = new FileReader();
   mimeTypes: string[] = ["JPEG", "PNG", "WEBP", "GIF", "AVIF", "TIFF", "RAW"];
   transformation: Transformation = this.initializeTransformation();
+  presets: string[] = [];
+  chosenPreset: Preset = { name: '' };
+  presetSaveSuccessful?: boolean;
 
   constructor(
     public picproService: PicproService,
@@ -108,7 +112,7 @@ export class AppComponent {
   }
 
   openSaveOutputDialog() {
-    this.dialog.open(SaveOutputDialog, { 
+    this.dialog.open(SaveOutputDialog, {
       data: this.outputImage
     });
   }
@@ -116,6 +120,26 @@ export class AppComponent {
   getAllImages() {
     this.picproService.getAllImages().subscribe(res => {
       this.images = res;
+    });
+  }
+
+  getAllPresets() {
+    this.picproService.getAllPresets().subscribe(res => {
+      this.presets = res;
+    });
+  }
+
+  triggerPresetRetrieval() {
+    this.picproService.fetchPreset(this.chosenPreset.name).subscribe(res => {
+      this.chosenPreset = res;
+      this.transformation = res.transformation!;
+    });
+  }
+
+  triggerPresetUpload() {
+    this.chosenPreset.transformation = this.transformation;
+    this.picproService.savePreset(this.chosenPreset).subscribe(res => {
+      this.presetSaveSuccessful = res;
     });
   }
 

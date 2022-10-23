@@ -181,10 +181,13 @@
         <div class="file-input-container spacing-vertical-small">
           <mat-checkbox ngDefaultControl [(ngModel)]="transformation.flip">Flip</mat-checkbox>
           <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.flop">Flop</mat-checkbox>
-          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.sharpen">Sharpen</mat-checkbox>
+          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.sharpen">Sharpen
+          </mat-checkbox>
           <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.blur">Blur</mat-checkbox>
-          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.greyscale">Greyscale</mat-checkbox>
-          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.blackwhite">Black & White</mat-checkbox>
+          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.greyscale">Greyscale
+          </mat-checkbox>
+          <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.blackwhite">Black & White
+          </mat-checkbox>
         </div>
 
       </mat-expansion-panel>
@@ -199,6 +202,50 @@
             <mat-icon>unarchive</mat-icon>
           </mat-panel-description>
         </mat-expansion-panel-header>
+
+        <div class="file-input-container">
+
+          <div class="align-middle">
+            <button mat-mini-fab color="primary" (click)="getAllPresets()">
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+
+          <div class="align-middle spacing-small">
+            <mat-form-field appearance="fill">
+              <mat-label>Select a preset</mat-label>
+              <mat-select [(value)]="chosenPreset.name">
+                <mat-option>None</mat-option>
+                <mat-option *ngFor="let preset of presets" [value]="preset">
+                  {{ preset }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="align-middle spacing-small">
+            <button mat-raised-button id="chooseImageBtn" color="primary" (click)="triggerPresetRetrieval()"
+              [disabled]="!chosenPreset.name">Choose</button>
+          </div>
+
+          <div class="align-middle spacing-large">OR</div>
+
+          <div class="align-middle spacing-large">
+            <mat-form-field appearance="fill">
+              <mat-label>Preset name</mat-label>
+              <input matInput autofocus type="text" [(ngModel)]="chosenPreset.name"
+                (keyup.enter)="triggerInputImageUpload()">
+              <button *ngIf="inputImage" matSuffix mat-icon-button aria-label="Clear" (click)="chosenPreset.name=''">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+
+          <div class="align-middle spacing-small">
+            <button mat-raised-button id="uploadBtn" color="primary" (click)="triggerPresetUpload()">Upload</button>
+          </div>
+        </div>
+
       </mat-expansion-panel>
 
     </mat-accordion>
