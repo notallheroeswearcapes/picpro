@@ -34,6 +34,7 @@ export class AppComponent {
 
   ngOnInit() {
     this.getAllImages();
+    this.getAllPresets();
   }
 
   onFileSelected(event: any) {
