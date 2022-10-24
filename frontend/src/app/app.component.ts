@@ -138,6 +138,7 @@ export class AppComponent {
 
   triggerPresetUpload() {
     this.chosenPreset.transformation = this.transformation;
+    this.chosenPreset.transformation.imageName = undefined;
     this.picproService.savePreset(this.chosenPreset).subscribe(res => {
       if (res) {
         this.getAllPresets();

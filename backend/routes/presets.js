@@ -56,14 +56,8 @@ const redis = require('redis');
 const redisClient = redis.createClient();
 redisClient.connect();
 
-redisClient.on("connect", function (result) {
+redisClient.on("connect", () => {
     console.log("Successful Connection to Redis")
-});
-
-router.get('/test', (req, res) => {
-    console.log("⚡️ Received request to /presets/test");
-
-    res.send("Received successfully.")
 });
 
 router.get('/', (_, res) => {
