@@ -26,7 +26,6 @@ export class AppComponent {
   transformation: Transformation = this.initializeTransformation();
   presets: string[] = [];
   chosenPreset: Preset = { name: '' };
-  presetSaveSuccessful?: boolean;
 
   constructor(
     public picproService: PicproService,
@@ -139,7 +138,9 @@ export class AppComponent {
   triggerPresetUpload() {
     this.chosenPreset.transformation = this.transformation;
     this.picproService.savePreset(this.chosenPreset).subscribe(res => {
-      this.presetSaveSuccessful = res;
+      if (res) {
+        this.getAllPresets();
+      }
     });
   }
 

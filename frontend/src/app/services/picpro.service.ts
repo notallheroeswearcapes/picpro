@@ -20,7 +20,7 @@ export class PicproService {
   transformImageUrl = "/images/transform";
   getPresetsUrl = "/presets/";
   fetchPresetUrl = "/presets/fetch";
-  savePresetUrl = "/presets/save";
+  savePresetUrl = "/presets/upload";
   httpPostOptions = {
     headers: new HttpHeaders({
       'Content-Type':  'application/json'

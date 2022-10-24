@@ -47,7 +47,7 @@ actual = {
     imageName: 'original.png',
     width: 780,
     height: 460
-  }
+}
 
 // This section will change for Cloud Services
 // Redis setup
@@ -66,7 +66,7 @@ router.get('/test', (req, res) => {
     res.send("Received successfully.")
 });
 
-router.get('/', (req, res) => {
+router.get('/', (_, res) => {
     console.log("⚡️ Received request to /presets/");
 
     // return the "name" attributes of all stored preset objects in redis
@@ -79,9 +79,9 @@ router.get('/', (req, res) => {
         console.log(`ℹ Retrieved ${result.length} images from S3`);
         res.send(keyNames);
     })
-    .catch((err) => {
-        console.error(`❌ Error when fetching preset * from redis: ${err}`);
-    });
+        .catch((err) => {
+            console.error(`❌ Error when fetching preset * from redis: ${err}`);
+        });
 })
 
 router.post('/fetch', (req, res) => {
@@ -94,16 +94,17 @@ router.post('/fetch', (req, res) => {
     // const redisKey = dummy1.name
     const redisKey = req.body.name;
 
-    redisClient.get(redisKey).then((result) => {
-        if (result) {
-            // insert code
-            console.log(JSON.parse(result));
-            res.send(JSON.parse(result));
-        }
-    })
-    .catch((err) => {
-        console.error(`❌ Error when fetching preset \'${redisKey}\' from redis: ${err}`);
-    });
+    redisClient.get(redisKey)
+        .then((result) => {
+            if (result) {
+                // insert code
+                console.log(JSON.parse(result));
+                res.send(JSON.parse(result));
+            }
+        })
+        .catch((err) => {
+            console.error(`❌ Error when fetching preset \'${redisKey}\' from redis: ${err}`);
+        });
 })
 
 router.post('/upload', (req, res) => {
@@ -120,17 +121,15 @@ router.post('/upload', (req, res) => {
 
     console.log(redisJSON);
 
-    redisClient.set(
-        redisKey,
-        JSON.stringify({...redisJSON})
-    ).then((result) => {
-        console.log(`✅ Successfully uploaded preset \'${redisKey}\' to Redis: ${result}`);
-        res.send(`✅ Successfully uploaded preset \'${redisKey}\' to Redis: ${result}`);
-    })
-    .catch((err) => {
-        console.error(`❌ Error during upload of preset \'${redisKey}\' to Redis: ${err}`);
-        res.send(`❌ Error during upload of preset \'${redisKey}\' to Redis: ${err}`);
-    });
+    redisClient.set(redisKey, JSON.stringify({ ...redisJSON }))
+        .then((result) => {
+            console.log(`✅ Successfully uploaded preset \'${redisKey}\' to Redis: ${result}`);
+            res.send(`✅ Successfully uploaded preset \'${redisKey}\' to Redis: ${result}`);
+        })
+        .catch((err) => {
+            console.error(`❌ Error during upload of preset \'${redisKey}\' to Redis: ${err}`);
+            res.send(`❌ Error during upload of preset \'${redisKey}\' to Redis: ${err}`);
+        });
 })
 
 module.exports = router;
