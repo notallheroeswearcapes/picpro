@@ -6,9 +6,9 @@ const router = express.Router();
 
 // example of json response
 dummy = {
-    presetName: "dummy",
+    name: "dummy",
     transformation: {
-        outputType: "jpeg",
+        outputType: "PNG",
         width: 400,
         height: 200,
         flip: false,
@@ -22,9 +22,9 @@ dummy = {
 
 // example of json response
 dummy1 = {
-    presetName: "dummy1",
+    name: "dummy1",
     transformation: {
-        outputType: "png",
+        outputType: "JPEG",
         width: 200,
         height: 400,
         flip: false,
@@ -35,6 +35,19 @@ dummy1 = {
         blackwhite: false
     }
 }
+
+actual = {
+    outputType: 'PNG',
+    flip: false,
+    flop: false,
+    sharpen: false,
+    blur: true,
+    greyscale: false,
+    blackwhite: false,
+    imageName: 'original.png',
+    width: 780,
+    height: 460
+  }
 
 // This section will change for Cloud Services
 // Redis setup
@@ -74,16 +87,18 @@ router.get('/', (req, res) => {
 router.post('/fetch', (req, res) => {
     console.log("⚡️ Received request to /presets/fetch");
 
+    console.log(req.body)
+
     // return a specific preset object by its "name" attribute that is passed in the request body
     // retreive from redis
-    const redisKey = dummy.presetName
-    // const redisKey = req.body.presetName
+    // const redisKey = dummy1.name
+    const redisKey = req.body.name;
 
     redisClient.get(redisKey).then((result) => {
         if (result) {
             // insert code
-            console.log(result);
-            res.send(result);
+            console.log(JSON.parse(result));
+            res.send(JSON.parse(result));
         }
     })
     .catch((err) => {
@@ -94,16 +109,20 @@ router.post('/fetch', (req, res) => {
 router.post('/upload', (req, res) => {
     console.log("⚡️ Received request to /presets/upload");
 
+    console.log(req);
+
     // upload a a preset object that is passed in the request body to redis and return a boolean if the operation was successful
     // we might change this later to a PUT method depending if we really need the success boolean, but it's fine for now
-    const redisJSON = dummy1.transformation;
-    const redisKey = dummy1.presetName;
-    // const redisJSON = req.body.transformation;
-    // const redisKey = req.body.presetName;
+    // const redisJSON = dummy1.transformation;
+    // const redisKey = dummy1.name;
+    const redisJSON = req.body.transformation;
+    const redisKey = req.body.name;
+
+    console.log(redisJSON);
 
     redisClient.set(
         redisKey,
-        JSON.stringify({ redisJSON })
+        JSON.stringify({...redisJSON})
     ).then((result) => {
         console.log(`✅ Successfully uploaded preset \'${redisKey}\' to Redis: ${result}`);
         res.send(`✅ Successfully uploaded preset \'${redisKey}\' to Redis: ${result}`);
