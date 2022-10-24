@@ -118,11 +118,11 @@ router.post('/upload', (req, res) => {
     redisClient.set(redisKey, JSON.stringify({ ...redisJSON }))
         .then((result) => {
             console.log(`✅ Successfully uploaded preset \'${redisKey}\' to Redis: ${result}`);
-            res.send(`✅ Successfully uploaded preset \'${redisKey}\' to Redis: ${result}`);
+            res.send(true);
         })
         .catch((err) => {
             console.error(`❌ Error during upload of preset \'${redisKey}\' to Redis: ${err}`);
-            res.send(`❌ Error during upload of preset \'${redisKey}\' to Redis: ${err}`);
+            res.send(false);
         });
 })
 
