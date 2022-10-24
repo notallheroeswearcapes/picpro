@@ -57,14 +57,7 @@ router.get('/', (req, res) => {
     console.log("⚡️ Received request to /presets/");
 
     // return the "name" attributes of all stored preset objects in redis
-    // redisClient.keys('*', function (err, keys) {
-    //     // if (err) return console.log(err);
-         
-    //     for(var i = 0, len = keys.length; i < len; i++) {
-    //       console.log(keys[i]);
-    //     }
-    //     res.json(keys);
-    //   })
+
     const keyNames = [];
     redisClient.keys('*').then((result) => {
         for (var i = 0; i < result.length; i++) {
@@ -84,6 +77,8 @@ router.post('/fetch', (req, res) => {
     // return a specific preset object by its "name" attribute that is passed in the request body
     // retreive from redis
     const redisKey = dummy.presetName
+    // const redisKey = req.body.presetName
+
     redisClient.get(redisKey).then((result) => {
         if (result) {
             // insert code
@@ -103,6 +98,9 @@ router.post('/upload', (req, res) => {
     // we might change this later to a PUT method depending if we really need the success boolean, but it's fine for now
     const redisJSON = dummy1.transformation;
     const redisKey = dummy1.presetName;
+    // const redisJSON = req.body.transformation;
+    // const redisKey = req.body.presetName;
+
     redisClient.set(
         redisKey,
         JSON.stringify({ redisJSON })
