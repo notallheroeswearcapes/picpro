@@ -104,16 +104,17 @@ router.post('/fetch', (req, res) => {
 router.post('/upload', (req, res) => {
     console.log("⚡️ Received request to /presets/upload");
 
-    console.log(req);
+    console.log(req.body);
 
     // upload a a preset object that is passed in the request body to redis and return a boolean if the operation was successful
     // we might change this later to a PUT method depending if we really need the success boolean, but it's fine for now
     // const redisJSON = dummy1.transformation;
     // const redisKey = dummy1.name;
-    const redisJSON = req.body.transformation;
+    // const redisJSON = req.body.transformation;
     const redisKey = req.body.name;
+    const redisJSON = req.body;
 
-    console.log(redisJSON);
+    // console.log(redisJSON);
 
     redisClient.set(redisKey, JSON.stringify({ ...redisJSON }))
         .then((result) => {
