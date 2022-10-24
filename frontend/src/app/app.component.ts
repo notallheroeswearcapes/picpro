@@ -131,6 +131,7 @@ export class AppComponent {
 
   triggerPresetRetrieval() {
     this.picproService.fetchPreset(this.chosenPreset.name).subscribe(res => {
+      console.log(res);
       this.chosenPreset = res;
       this.transformation = res.transformation!;
     });
