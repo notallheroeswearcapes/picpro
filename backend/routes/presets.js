@@ -65,9 +65,13 @@ router.get('/', (req, res) => {
     //     }
     //     res.json(keys);
     //   })
+    const keyNames = [];
     redisClient.keys('*').then((result) => {
-        console.log(result);
-        res.send(result);
+        for (var i = 0; i < result.length; i++) {
+            keyNames.push(result[i]);
+        }
+        console.log(`ℹ Retrieved ${result.length} images from S3`);
+        res.send(keyNames);
     })
     .catch((err) => {
         console.error(`❌ Error when fetching preset * from redis: ${err}`);
