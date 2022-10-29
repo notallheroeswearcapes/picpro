@@ -133,6 +133,7 @@ export class AppComponent {
     this.picproService.fetchPreset(this.chosenPreset.name).subscribe(res => {
       this.chosenPreset = res;
       this.transformation = res.transformation!;
+      this.transformation.imageName = this.inputImage?.name;
     });
   }
 
@@ -163,6 +164,13 @@ export class AppComponent {
     this.transformation.outputType = metadata.format.toUpperCase();
     this.transformation.width = metadata.width;
     this.transformation.height = metadata.height;
+  }
+
+  resetTransformation() {
+    this.transformation = this.initializeTransformation();
+    if ((this.uploaded || this.imageChosen) && (this.inputImage && this.inputImage.metadata)) {
+      this.setTransformationFromMetadata(this.inputImage.metadata);
+    }
   }
 
   initializeTransformation() {

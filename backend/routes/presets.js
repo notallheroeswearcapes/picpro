@@ -6,12 +6,16 @@ const router = express.Router();
 
 // Redis setup
 const redis = require('redis');
-
-const redisClient = redis.createClient();
+const redisClient = redis.createClient({
+    socket: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT
+    }
+});
 redisClient.connect();
 
 redisClient.on("connect", () => {
-    console.log("Successful Connection to Redis")
+    console.log("✅ Successfully connected to Redis")
 });
 
 router.get('/', (_, res) => {
@@ -36,19 +40,18 @@ router.post('/fetch', (req, res) => {
     console.log("⚡️ Received request to /presets/fetch");
 
     // return a specific preset object by its "name" attribute that is passed in the request body
-    // retreive from redis
+    // retrieve from redis
     const redisKey = req.body.name;
 
     redisClient.get(redisKey)
         .then((result) => {
             if (result) {
-                // insert code
-                console.log(JSON.parse(result));
+                console.log(`✅ Successfully fetched preset \'${redisKey}\' from Redis`);
                 res.send(JSON.parse(result));
             }
         })
         .catch((err) => {
-            console.error(`❌ Error when fetching preset \'${redisKey}\' from redis: ${err}`);
+            console.error(`❌ Error when fetching preset \'${redisKey}\' from Redis: ${err}`);
         });
 })
 

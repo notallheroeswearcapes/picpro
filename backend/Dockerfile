@@ -1,10 +1,5 @@
 FROM node:16-alpine
 
-# Set basic AWS credentials
-ENV AWS_ACCESS_KEY_ID XXID
-ENV AWS_SECRET_ACCESS_KEY XXSECRET
-ENV AWS_SESSION_TOKEN XXTOKEN
-
 # Set the work directory to app folder. 
 # We will be copying our code here
 WORKDIR /backend

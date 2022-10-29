@@ -80,6 +80,10 @@
           </div>
         </div>
 
+        <mat-action-row>
+          <button mat-button color="warn" (click)="onInputImageReset()">Reset</button>
+        </mat-action-row>
+
       </mat-expansion-panel>
 
       <mat-expansion-panel>
@@ -189,6 +193,11 @@
           <mat-checkbox ngDefaultControl class="spacing-small" [(ngModel)]="transformation.blackwhite">Black & White
           </mat-checkbox>
         </div>
+
+        <mat-action-row>
+          <button mat-button color="primary" [disabled]="!uploaded && !imageChosen" (click)="triggerImageTransformation()">Transform</button>
+          <button mat-button color="warn" (click)="resetTransformation()">Reset</button>
+        </mat-action-row>
 
       </mat-expansion-panel>
 
