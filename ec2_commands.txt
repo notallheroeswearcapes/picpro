@@ -6,7 +6,7 @@ sudo docker network create net
 sudo docker run -d --restart unless-stopped --network net --name backend -p 3000:3000 -t meder96/picpro:backend
 sudo docker run -d --restart unless-stopped --network net --name frontend -p 4200:80 -t meder96/picpro:frontend
 
-# create AMI, ID: ami-0f2d7e02ecf67b86d
+# create AMI, ID: ami-123
 # create launch config: choose t2.micro instance type, select CAB432SG sec. group, proceed without key
 # create target group: instances, select port of backend, QUT VPC, no instances
 # create load balancer: application, internet-facing, IPv4, QUT VPC, all public subnets, CAB432SG sec. group
