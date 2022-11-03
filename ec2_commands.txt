@@ -1,16 +1,12 @@
 curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs
-sudo npm install -g pm2
 sudo apt install docker.io
 sudo docker login
 sudo docker pull meder96/picpro --all-tags
-sudo touch ecosystem.config.js
-# copy content from repo version into EC2 ecosystem file
-sudo nano ecosystem.config.js
-sudo pm2 startup
-sudo pm2 start
-sudo pm2 save
+sudo docker network create net
+sudo docker run -d --restart unless-stopped --network net --name backend -p 3000:3000 -t meder96/picpro:backend
+sudo docker run -d --restart unless-stopped --network net --name frontend -p 4200:80 -t meder96/picpro:frontend
 
-# create AMI, ID: ami-01befdd0f2fac9ad5
+# create AMI, ID: ami-0f2d7e02ecf67b86d
 # create launch config: choose t2.micro instance type, select CAB432SG sec. group, proceed without key
 # create target group: instances, select port of backend, QUT VPC, no instances
 # create load balancer: application, internet-facing, IPv4, QUT VPC, all public subnets, CAB432SG sec. group
